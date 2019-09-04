@@ -1,0 +1,9 @@
+requests==2.22.0
+beautifulsoup4==4.8.0
+pyyaml==5.1.2
+peewee==3.10.0
+psycopg2==2.8.3
+pytz==2019.2
+flask==1.1.1
+flask-peewee==0.6.7
+Bootstrap-Flask==1.0.10
