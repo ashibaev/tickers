@@ -4,7 +4,7 @@ from typing import List, Tuple, Dict, Any, Iterable
 
 from fill_database.loaders import TickerData
 from fill_database.html_parsers import InsiderParser, ShareParser
-from utils import InsiderData, InsiderTradesField
+from common.utils import InsiderData, InsiderTradesField
 
 
 @dataclass

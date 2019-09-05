@@ -1,6 +1,6 @@
 from typing import Any
 
-from utils import InsiderTradesField
+from common.utils import InsiderTradesField
 
 
 def get_mapping(iterable):

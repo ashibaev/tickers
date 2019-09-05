@@ -40,7 +40,7 @@ class Ticker(BaseModel):
 
 class Share(BaseModel):
     ticker = ForeignKeyField(Ticker)
-    date = DateField()
+    date = DateField(index=True, index_type='BTREE')
     open = MoneyField(constraints=[Check('open >= 0')])
     high = MoneyField(constraints=[Check('high >= 0')])
     low = MoneyField(constraints=[Check('low >= 0')])

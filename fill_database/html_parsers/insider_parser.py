@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from fill_database.html_parsers.base_parser import BaseParser
-from utils import InsiderTradesField
+from common.utils import InsiderTradesField
 
 
 class InsiderParser(BaseParser):

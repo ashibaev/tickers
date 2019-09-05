@@ -1,0 +1,21 @@
+version: '3.7'
+
+services:
+  fill_database:
+    build: .
+    command:
+      - "python3.7"
+      - "-m"
+      - "fill_database"
+      - "2"
+    env_file: .env.web
+    depends_on:
+      - db
+  db:
+    image: postgres:11.5-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: .env.db
+
+volumes:
+  postgres_data:

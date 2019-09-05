@@ -1,7 +1,7 @@
 from dataclasses import asdict
 
-from config import DBConfig
-from models.models import (
+from common.config import DBConfig
+from common.models.models import (
     RelationType,
     TransactionType,
     OwnerType,

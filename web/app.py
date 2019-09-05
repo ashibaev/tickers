@@ -5,8 +5,9 @@ from flask.json import JSONEncoder
 from flask_bootstrap import Bootstrap
 from flask_peewee.db import Database
 
-from config import CONFIG
-from models import init_db, DATABASE
+from common.config import CONFIG
+from common.models import init_db, DATABASE
+from web import TEMPLATE_FOLDER
 
 
 class DateJSONEncoder(JSONEncoder):
@@ -18,7 +19,7 @@ class DateJSONEncoder(JSONEncoder):
 
 init_db(CONFIG.db)
 
-app = Flask('app')
+app = Flask('app', template_folder=TEMPLATE_FOLDER)
 Bootstrap(app)
 app.json_encoder = DateJSONEncoder
 

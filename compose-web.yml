@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  web:
+    build: .
+    command:
+      - "python3.7"
+      - "-m"
+      - "web"
+    expose:
+      - 5000
+    env_file: .env.web
+    depends_on:
+      - db
+  nginx:
+    build: nginx
+    ports:
+      - 8000:8000
+    depends_on:
+      - web
+  db:
+    image: postgres:11.5-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file: .env.db
+
+volumes:
+  postgres_data:

@@ -4,9 +4,10 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import List, Dict
 
+
+from common.config.configs import ShareParserConfig, InsiderParserConfig, ParserConfig
 from fill_database.loaders import InsiderLoader, ShareLoader
 from fill_database.loaders.base_loader import BaseLoader
-from config.configs import ShareParserConfig, InsiderParserConfig, ParserConfig
 
 
 @dataclass

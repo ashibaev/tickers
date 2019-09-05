@@ -1,26 +1,25 @@
-import os
-import pathlib
+from common.config.configs import Config, DBConfig, ParserConfig, ShareParserConfig, InsiderParserConfig
+from common.utils import env
 
-from config.configs import Config, DBConfig, ParserConfig, ShareParserConfig, InsiderParserConfig
-
-BASE_DIR: pathlib.Path = pathlib.Path(__name__).parent.parent
+LOGGING_LEVEL = ['INFO', 'DEBUG']['DEBUG' in env]
 
 
-DB_PASS = os.environ['DB_PASS']
-LOGGING_LEVEL = ['INFO', 'DEBUG']['DEBUG' in os.environ]
+def parse_tickers(filename):
+    with open(filename, 'r') as f:
+        return list(set(line.strip().lower() for line in f.readlines()))
 
 
 CONFIG = Config(
     db=DBConfig(
-        user='nasdaq_user',
-        host='localhost',
-        password=DB_PASS,
-        database='nasdaq',
-        port=5432,
-        max_connections=50
+        user=env.DB_USER,
+        host=env.DB_HOST,
+        password=env.DB_PASS,
+        database=env.DB_NAME,
+        port=env.DB_PORT,
+        max_connections=env.DB_MAX_CONNECTIONS
     ),
     parser=ParserConfig(
-        tickers=['aapl', 'cvx', 'goog'],
+        tickers=parse_tickers('tickers.txt'),
         share_parser=ShareParserConfig(
             url_template='http://www.nasdaq.com/symbol/{ticker}/historical'
         ),
@@ -44,7 +43,7 @@ CONFIG = Config(
             'file': {
                 'class': 'logging.handlers.RotatingFileHandler',
                 'formatter': 'default',
-                'filename': '/var/log/tickers/app.log',
+                'filename': '/var/log/app/app.log',
                 'maxBytes': 10485760,
                 'backupCount': 3
             }

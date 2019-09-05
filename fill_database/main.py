@@ -5,9 +5,9 @@ from typing import List
 from fill_database.html_parsers import parse_data
 from fill_database.html_parsers.parser import ParsedData
 from fill_database.loaders import load_data
-from models import *
-from config import CONFIG
-from utils import IdCache, make_column
+from common.models import *
+from common.config import CONFIG
+from common.utils import IdCache, make_column
 
 
 def get_thread_nums(args: List[str]):
@@ -17,25 +17,38 @@ def get_thread_nums(args: List[str]):
 
 
 def prepare_tickers(id_cache: IdCache) -> None:
-    Ticker.insert_many(make_column(id_cache.tickers), fields=[Ticker.name]).execute()
+    (Ticker
+        .insert_many(make_column(id_cache.tickers), fields=[Ticker.name])
+        .on_conflict_ignore()
+        .execute())
 
 
 def prepare_relation_types(id_cache: IdCache) -> None:
-    RelationType.insert_many(make_column(id_cache.relation_types), fields=[RelationType.name]).execute()
+    (RelationType
+        .insert_many(make_column(id_cache.relation_types), fields=[RelationType.name])
+        .on_conflict_ignore()
+        .execute())
 
 
 def prepare_transaction_types(id_cache: IdCache) -> None:
-    TransactionType.insert_many(make_column(id_cache.transaction_types), fields=[TransactionType.name]).execute()
+    (TransactionType
+        .insert_many(make_column(id_cache.transaction_types), fields=[TransactionType.name])
+        .on_conflict_ignore()
+        .execute())
 
 
 def prepare_insiders(parsed_data):
-    Insider.insert_many(
-        sorted(set(parsed_data.get_insiders_data())), fields=[Insider.name, Insider.nasdaq_id]
-    ).execute()
+    (Insider
+        .insert_many(sorted(set(parsed_data.get_insiders_data())), fields=[Insider.name, Insider.nasdaq_id])
+        .on_conflict_ignore()
+        .execute())
 
 
 def prepare_owner_types(id_cache):
-    OwnerType.insert_many(make_column(id_cache.owner_types), fields=[OwnerType.name]).execute()
+    (OwnerType
+        .insert_many(make_column(id_cache.owner_types), fields=[OwnerType.name])
+        .on_conflict_ignore()
+        .execute())
 
 
 def prepare_insider_trades(id_cache, parsed_data):
@@ -44,14 +57,16 @@ def prepare_insider_trades(id_cache, parsed_data):
         for ticker, ticker_data in parsed_data.items()
         for row in ticker_data.insider_data
     ]
-    InsiderTrade.insert_many(
-        insider_trades,
-        fields=[
-            InsiderTrade.ticker, InsiderTrade.insider, InsiderTrade.relation,
-            InsiderTrade.last_date, InsiderTrade.transaction_type, InsiderTrade.owner_type,
-            InsiderTrade.shares_traded, InsiderTrade.last_price, InsiderTrade.shares_held
-        ]
-    ).execute()
+    (InsiderTrade
+        .insert_many(
+            insider_trades,
+            fields=[
+                InsiderTrade.ticker, InsiderTrade.insider, InsiderTrade.relation,
+                InsiderTrade.last_date, InsiderTrade.transaction_type, InsiderTrade.owner_type,
+                InsiderTrade.shares_traded, InsiderTrade.last_price, InsiderTrade.shares_held
+            ])
+        .on_conflict_ignore()
+        .execute())
 
 
 def prepare_shares(id_cache, parsed_data):
@@ -60,10 +75,14 @@ def prepare_shares(id_cache, parsed_data):
         for ticker, ticker_data in parsed_data.items()
         for row in ticker_data.share_data
     )
-    Share.insert_many(
-        shares,
-        fields=[Share.ticker, Share.date, Share.open, Share.high, Share.low, Share.close, Share.volume]
-    ).execute()
+    (Share
+        .insert_many(
+            shares,
+            fields=[Share.ticker, Share.date, Share.open, Share.high, Share.low, Share.close, Share.volume])
+        .on_conflict(
+            conflict_target=[Share.ticker, Share.date],
+            preserve=[Share.low, Share.high, Share.close, Share.volume]
+        ).execute())
 
 
 # TODO : подумать над id_cache и parsed_data
