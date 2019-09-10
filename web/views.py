@@ -1,5 +1,5 @@
 import datetime
-from functools import wraps
+from functools import wraps, partial
 
 import flask
 from flask import make_response, render_template, url_for
@@ -66,34 +66,46 @@ def shares(ticker_name: str) -> flask.Response:
     three_month_ago = today.replace(month=(today.month - 4) % 12 + 1)
     share_models = (
         Share.select()
-            .where(Share.date.between(three_month_ago, today) & (Share.ticker == ticker))
+            .where((Share.ticker == ticker) & Share.date.between(three_month_ago, today))
             .order_by(Share.date.desc())
     )
     response = {
         'ticker_name': ticker_name,
         'insiders_href': build_url('insiders', ticker_name=ticker_name),
-        'shares': list(map(model_to_dict, share_models))
+        'shares': list(map(partial(model_to_dict, exclude=[Share.id, Share.ticker]), share_models))
     }
     return flask.jsonify(response)
 
 
 def select_insider_trades():
     return (
-        InsiderTrade.select(InsiderTrade, RelationType, OwnerType, TransactionType, Insider)
-            .join_from(InsiderTrade, RelationType)
+        InsiderTrade.select(
+                Insider.name.alias('insider_name'),
+                Insider.nasdaq_id.alias('insider_nasdaq_id'),
+                RelationType.name.alias('relation_name'),
+                InsiderTrade.last_date,
+                TransactionType.name.alias('transaction_type_name'),
+                OwnerType.name.alias('owner_type_name'),
+                InsiderTrade.shares_traded,
+                InsiderTrade.last_price,
+                InsiderTrade.shares_held
+            ).join_from(InsiderTrade, RelationType)
             .join_from(InsiderTrade, OwnerType)
             .join_from(InsiderTrade, TransactionType)
             .join_from(InsiderTrade, Insider)
+            .order_by(InsiderTrade.last_date.desc())
     )
 
 
-def patch_insider_hrefs(trades, ticker_name):
+def add_insider_hrefs(trades, ticker_name):
+    result = []
     for trade in trades:
-        insider_name = trade['insider']['name']
-        insider_nasdaq_id = trade['insider']['nasdaq_id']
+        insider_name = trade['insider_name']
+        insider_nasdaq_id = trade.pop('insider_nasdaq_id')
         insider_str = str(InsiderData(insider_name, insider_nasdaq_id))
-        trade['insider']['href'] = build_url('insider_trades', ticker_name=ticker_name, insider_name=insider_str)
-    return trades
+        trade['insider_href'] = build_url('insider_trades', ticker_name=ticker_name, insider_name=insider_str)
+        result.append(trade)
+    return result
 
 
 @app.route('/api/<string:ticker_name>/insider/', endpoint='insiders_api')
@@ -107,9 +119,18 @@ def insiders(ticker_name: str):
     )
     response = {
         'ticker_name': ticker_name,
-        'trades': patch_insider_hrefs(list(map(model_to_dict, trades)), ticker_name)
+        'trades': add_insider_hrefs(trades.dicts(), ticker_name=ticker_name)
     }
     return flask.jsonify(response)
+
+
+def pop_insiders(data):
+    result = []
+    for row in data:
+        row.pop('insider_name')
+        row.pop('insider_nasdaq_id')
+        result.append(row)
+    return result
 
 
 @app.route('/api/<string:ticker_name>/insider/<string:insider_name>/', endpoint='insider_trades_api')
@@ -118,18 +139,14 @@ def insiders(ticker_name: str):
 def insider_trades(ticker_name: str, insider_name):
     ticker = Ticker.get(Ticker.name == ticker_name)
     insider_data = InsiderData.parse(insider_name)
-    insider = Insider.get(
-        Insider.name == insider_data.name,
-        Insider.nasdaq_id == insider_data.nasdaq_id
-    )
+    insider = Insider.get(Insider.nasdaq_id == insider_data.nasdaq_id)
     trades = (
         select_insider_trades()
             .where((InsiderTrade.ticker == ticker) & (InsiderTrade.insider == insider))
-            .order_by(InsiderTrade.last_date.desc())
     )
     response = {
         'ticker_name': ticker_name,
         'insider_name': insider_data.name,
-        'trades': list(map(model_to_dict, trades))
+        'trades': pop_insiders(trades.dicts())
     }
     return flask.jsonify(response)

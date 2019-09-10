@@ -7,7 +7,7 @@ from fill_database.html_parsers.parser import ParsedData
 from fill_database.loaders import load_data
 from common.models import *
 from common.config import CONFIG
-from common.utils import IdCache, make_column
+from common.utils import IdCache, make_column, get_index_on
 
 
 def get_thread_nums(args: List[str]):
@@ -80,7 +80,7 @@ def prepare_shares(id_cache, parsed_data):
             shares,
             fields=[Share.ticker, Share.date, Share.open, Share.high, Share.low, Share.close, Share.volume])
         .on_conflict(
-            conflict_target=[Share.ticker, Share.date],
+            conflict_constraint=get_index_on(Share, ['ticker_id', 'date']).name,
             preserve=[Share.low, Share.high, Share.close, Share.volume]
         ).execute())
 

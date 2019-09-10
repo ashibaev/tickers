@@ -16,16 +16,12 @@
     {% for trade in trades %}
         <tr>
             <td scope="row">
-                <a href="{{trade.insider['href']}}"> {{trade.insider.name}} </a>
+                <a href="{{trade.insider_href}}"> {{trade.insider_name}} </a>
             </td>
-        {% for name in 'relation', 'last_date', 'transaction_type',
-            'owner_type', 'shares_traded', 'last_price', 'shares_held' %}
+        {% for name in 'relation_name', 'last_date', 'transaction_type_name',
+            'owner_type_name', 'shares_traded', 'last_price', 'shares_held' %}
             <td scope="row">
-                {% if name in ('relation', 'transaction_type', 'owner_type') %}
-                    {{trade[name]['name']|capitalize}}
-                {% else %}
-                    {{trade[name]}}
-                {% endif %}
+                    {{trade[name]|capitalize}}
             </td>
         {% endfor %}
         </tr>

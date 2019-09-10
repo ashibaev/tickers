@@ -6,7 +6,7 @@ from peewee import (
     IntegerField,
     Model,
     DateField,
-)
+    SQL)
 
 from playhouse.pool import PooledPostgresqlExtDatabase
 
@@ -40,7 +40,7 @@ class Ticker(BaseModel):
 
 class Share(BaseModel):
     ticker = ForeignKeyField(Ticker)
-    date = DateField(index=True, index_type='BTREE')
+    date = DateField(index=True)
     open = MoneyField(constraints=[Check('open >= 0')])
     high = MoneyField(constraints=[Check('high >= 0')])
     low = MoneyField(constraints=[Check('low >= 0')])
@@ -48,8 +48,8 @@ class Share(BaseModel):
     volume = IntegerField(constraints=[Check('volume >= 0')])
 
     class Meta:
-        indexes = (
-            (('ticker', 'date'), True),
+        constraints = (
+            SQL(f'CONSTRAINT share_unique_idx UNIQUE ("ticker_id", "date")'),
         )
 
 
@@ -73,3 +73,8 @@ class InsiderTrade(BaseModel):
     shares_traded = IntegerField()
     last_price = MoneyField(null=True)
     shares_held = IntegerField()
+
+    class Meta:
+        indexes = (
+            (('ticker', 'insider'), False),
+        )
