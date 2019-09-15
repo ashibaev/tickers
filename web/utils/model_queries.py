@@ -2,20 +2,14 @@ from decimal import Decimal
 from functools import partial
 from typing import List, Callable, Dict, Any
 
-from peewee import Field, Model, ModelSelect, Select, fn, NodeList, SQL
+from peewee import Field, Model, ModelSelect, Select, fn
 from playhouse.shortcuts import model_to_dict
 
 from common.models import Ticker, InsiderTrade, Insider, RelationType, TransactionType, OwnerType, Share
-from web.app import db
 
 
 def create_dumper_with_excluded(*exclude: List[Field]) -> Callable[[Model], Dict[str, Any]]:
     return partial(model_to_dict, exclude=exclude)
-
-
-def select_shares_of_ticker(ticker: Ticker) -> ModelSelect:
-    return (Share.select(Share.ticker, Share.date, Share.open, Share.high, Share.low, Share.close)
-            .where(Share.ticker == ticker))
 
 
 def select_share_periods_with_bounded_difference(ticker: Ticker, value: Decimal, price_type: str) -> Select:
