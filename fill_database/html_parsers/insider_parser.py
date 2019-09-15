@@ -3,28 +3,27 @@ from typing import Any
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
+from common.config import CONFIG
 from fill_database.html_parsers.base_parser import BaseParser
-from common.utils import InsiderTradesField
+from fill_database.html_parsers.fields import InsiderTradeField
 
 
 class InsiderParser(BaseParser):
-    INSIDER_URL = 'https://www.nasdaq.com/quotes/insiders/'  # TODO: Какое-то говно?
-
     @classmethod
     def _process_element(cls, index: int, tag: Tag) -> Any:
-        if index == InsiderTradesField.INSIDER:
+        if index == InsiderTradeField.INSIDER:
             tag: Tag = tag.find('a')
-            return tag.attrs.get('href')[len(InsiderParser.INSIDER_URL):]
+            return tag.attrs.get('href')[len(CONFIG.parser.insider_url):]
         value = super()._process_element(index, tag)
-        if index in [InsiderTradesField.RELATION_TYPE,
-                     InsiderTradesField.TRANSACTION_TYPE,
-                     InsiderTradesField.OWNER_TYPE]:
+        if index in [InsiderTradeField.RELATION_TYPE,
+                     InsiderTradeField.TRANSACTION_TYPE,
+                     InsiderTradeField.OWNER_TYPE]:
             return value.lower()
-        if index == InsiderTradesField.LAST_DATE:
+        if index == InsiderTradeField.LAST_DATE:
             return BaseParser.parse_date(value)
-        if index in [InsiderTradesField.SHARES_HELD,
-                     InsiderTradesField.SHARES_TRADED,
-                     InsiderTradesField.LAST_PRICE]:
+        if index in [InsiderTradeField.SHARES_HELD,
+                     InsiderTradeField.SHARES_TRADED,
+                     InsiderTradeField.LAST_PRICE]:
             return BaseParser.parse_numeric(value)
         return value
 

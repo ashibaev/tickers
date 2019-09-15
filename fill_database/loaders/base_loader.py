@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 import requests
 
 
@@ -21,10 +19,13 @@ class Loader:
         return requests.get(*args, **kwargs)
 
 
-@dataclass
 class BaseLoader:
-    url: str
-    ticker: str
+    def __init__(self, url: str, ticker: str) -> None:
+        self.url = url
+        self.ticker = ticker
 
     def load(self) -> str:
         raise NotImplemented
+
+    def __str__(self):
+        return f"BaseLoader({self.url, self.ticker})"

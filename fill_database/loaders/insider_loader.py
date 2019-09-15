@@ -2,6 +2,7 @@ import re
 
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
 
 from fill_database.loaders.base_loader import BaseLoader, Loader
 
@@ -12,18 +13,20 @@ class LoadingState(Enum):
     CORRECT_PAGE = 3
 
 
-@dataclass
 class InsiderLoader(BaseLoader):
-    page: int
-
     PATTERN = re.compile(r'rel="canonical" href="((([/a-z]|.)*)(\?page=(?P<page>\d+))?)"')
 
+    def __init__(self, url: str, ticker: str, page: int) -> None:
+        self.page = page
+        super().__init__(url, ticker)
+
     def load(self) -> str:
-        chunks = []
+        chunks: List[str] = []
         checked = LoadingState.NOT_CHECKED
         with Loader.get(self._get_page_url(), stream=True) as response:
             if response.status_code != 200:
                 return ''
+            chunk: str
             for chunk in response.iter_content(chunk_size=2048, decode_unicode=True):
                 if checked == LoadingState.INCORRECT_PAGE:
                     return ''
@@ -34,7 +37,7 @@ class InsiderLoader(BaseLoader):
                     checked = self._check_page(chunks)
         return ''.join(chunks)
 
-    def _check_page(self, chunks) -> LoadingState:
+    def _check_page(self, chunks: List[str]) -> LoadingState:
         part = ''.join(chunks[-2:])
         match = InsiderLoader.PATTERN.search(part)
         if not match:
@@ -43,7 +46,10 @@ class InsiderLoader(BaseLoader):
             return LoadingState.CORRECT_PAGE
         return LoadingState.CORRECT_PAGE
 
-    def _get_page_url(self):
+    def _get_page_url(self) -> str:
         if self.page == 1:
             return self.url
         return f"{self.url}?page={self.page}"
+
+    def __str__(self):
+        return f"InsiderLoader({self.url}, {self.ticker}, {self.page})"

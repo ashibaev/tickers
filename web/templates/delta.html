@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if has_answer %}
+<h4>
+    The first minimal period of {{ticker_name.upper()}} price change at least for {{delta}}.
+</h4>
+<table class="table table-striped table-hover">
+    <thead class="thead-dark">
+        <tr>
+        {% for name in ('Date', type.capitalize()) %}
+            <th scope="col">{{name}}</th>
+        {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+    {% for day in (from, to) %}
+        <tr>
+        {% for name in 'date', 'price' %}
+            <td scope="row">{{day[name]}}</td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<h5>Difference: {{difference}}</h5>
+{% else %}
+<h4>
+    No period with an {{type}} price of {{ticker_name.upper()}} difference of at least {{delta}}.
+</h4>
+{% endif%}
+{% endblock %}

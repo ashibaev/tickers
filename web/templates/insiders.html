@@ -1,5 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
+<div >
+<h3>
+    Insiders of {{ticker_name.upper()}}.
+</h3>
+<ul class="list-group">
+    {% for insider in insiders %}
+        <a class="list-group-item list-group-item-action" href="{{ insider.href }}">{{ insider.name.upper() }}</a>
+    {% endfor %}
+</ul>
+</div>
+<div>
 <h3>
     Insider trades of {{ticker_name.upper()}}.
 </h3>
@@ -15,10 +26,7 @@
     <tbody>
     {% for trade in trades %}
         <tr>
-            <td scope="row">
-                <a href="{{trade.insider_href}}"> {{trade.insider_name}} </a>
-            </td>
-        {% for name in 'relation_name', 'last_date', 'transaction_type_name',
+        {% for name in 'insider', 'relation_name', 'last_date', 'transaction_type_name',
             'owner_type_name', 'shares_traded', 'last_price', 'shares_held' %}
             <td scope="row">
                     {{trade[name]|capitalize}}
@@ -28,4 +36,5 @@
     {% endfor %}
     </tbody>
 </table>
+</div>
 {% endblock %}

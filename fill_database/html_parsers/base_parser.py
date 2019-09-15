@@ -1,11 +1,9 @@
 import datetime
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Union
 
 import pytz
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-
-# TODO: SoupStainer
 
 
 class BaseParser:
@@ -27,7 +25,7 @@ class BaseParser:
         return datetime.datetime.now(BaseParser.NASDAQ_TIMEZONE).date()
 
     @staticmethod
-    def parse_numeric(value: str) -> str:
+    def parse_numeric(value: str) -> Union[None, str]:
         if len(value) == 0:
             return None
         return ''.join(value.split(','))

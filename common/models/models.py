@@ -1,7 +1,10 @@
+import datetime
+from functools import partial
+
 from peewee import (
     Check,
     CharField,
-    DoubleField,
+    DecimalField,
     ForeignKeyField,
     IntegerField,
     Model,
@@ -19,7 +22,7 @@ class BaseModel(Model):
         legacy_table_names = False
 
 
-MoneyField = DoubleField
+MoneyField = partial(DecimalField, decimal_places=10, max_digits=30)
 
 
 class RelationType(BaseModel):
@@ -54,7 +57,7 @@ class Share(BaseModel):
 
 
 class Insider(BaseModel):
-    name = CharField(max_length=40)
+    name = CharField(max_length=40, index=True)
     nasdaq_id = IntegerField(unique=True)
 
     class Meta:
@@ -67,7 +70,7 @@ class InsiderTrade(BaseModel):
     ticker = ForeignKeyField(Ticker)
     insider = ForeignKeyField(Insider)
     relation = ForeignKeyField(RelationType)
-    last_date = DateField()
+    last_date = DateField(index=True)
     transaction_type = ForeignKeyField(TransactionType)
     owner_type = ForeignKeyField(OwnerType)
     shares_traded = IntegerField()

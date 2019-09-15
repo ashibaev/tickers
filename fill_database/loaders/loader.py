@@ -1,4 +1,5 @@
 import concurrent.futures
+import logging
 
 from concurrent.futures.thread import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -8,6 +9,9 @@ from typing import List, Dict
 from common.config.configs import ShareParserConfig, InsiderParserConfig, ParserConfig
 from fill_database.loaders import InsiderLoader, ShareLoader
 from fill_database.loaders.base_loader import BaseLoader
+
+
+logger = logging.getLogger('fill_db')
 
 
 @dataclass
@@ -53,11 +57,11 @@ def load_data(parser_config: ParserConfig, workers) -> Dict[str, TickerData]:
             future_params[executor.submit(ticker_loaders.share_loader.load)] = ticker_loaders.share_loader
             for loader in ticker_loaders.insider_loaders:
                 future_params[executor.submit(loader.load)] = loader
-            print(f'Tasks for {ticker} created', flush=True)  # TODO: logging
+            logger.info(f'Tasks for {ticker} created')
         future: concurrent.futures.Future
         for future in concurrent.futures.as_completed(future_params):
             loader = future_params[future]
-            print(f'Task for {loader} completed', flush=True)  # TODO: logging
+            logger.info(f'Task for {loader} completed')
             if isinstance(loader, ShareLoader):
                 result[loader.ticker].share_page = future.result()
             if isinstance(loader, InsiderLoader):

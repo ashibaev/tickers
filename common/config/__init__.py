@@ -1,10 +1,12 @@
+from typing import List
+
 from common.config.configs import Config, DBConfig, ParserConfig, ShareParserConfig, InsiderParserConfig
 from common.utils import env
 
 LOGGING_LEVEL = ['INFO', 'DEBUG']['DEBUG' in env]
 
 
-def parse_tickers(filename):
+def parse_tickers(filename: str) -> List[str]:
     with open(filename, 'r') as f:
         return list(set(line.strip().lower() for line in f.readlines()))
 
@@ -21,12 +23,13 @@ CONFIG = Config(
     parser=ParserConfig(
         tickers=parse_tickers('tickers.txt'),
         share_parser=ShareParserConfig(
-            url_template='http://www.nasdaq.com/symbol/{ticker}/historical'
+            url_template='http://old.nasdaq.com/symbol/{ticker}/historical'
         ),
         insider_parser=InsiderParserConfig(
-            url_template='http://www.nasdaq.com/symbol/{ticker}/insider-trades',
+            url_template='http://old.nasdaq.com/symbol/{ticker}/insider-trades',
             pages=10
-        )
+        ),
+        insider_url='https://old.nasdaq.com/quotes/insiders/'
     ),
     logging={
         'version': 1,

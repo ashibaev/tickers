@@ -12,5 +12,5 @@ class InsiderData(NamedTuple):
         name = ' '.join(map(lambda x: x.upper(), name.split('-')))
         return InsiderData(name, nasdaq_id)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '-'.join(self.name.lower().split() + [str(self.nasdaq_id)])

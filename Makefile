@@ -8,6 +8,9 @@ prepare:
 		pip install -r requirements-dev.txt; \
 	)
 
+clear_database:
+	docker-compose --file compose-fill-database.yml down -v
+
 fill:
 	( \
 		make clear; \

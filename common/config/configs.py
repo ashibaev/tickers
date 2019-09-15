@@ -32,6 +32,7 @@ class ParserConfig:
     tickers: List[str]
     share_parser: ShareParserConfig
     insider_parser: InsiderParserConfig
+    insider_url: str
 
 
 @dataclass

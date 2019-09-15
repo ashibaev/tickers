@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 from itertools import chain
-from typing import List, Tuple, Dict, Any, Iterable
+from typing import List, Tuple, Dict, Any, Iterable, Union
 
+from fill_database.html_parsers.fields import InsiderTradeField
 from fill_database.loaders import TickerData
 from fill_database.html_parsers import InsiderParser, ShareParser
-from common.utils import InsiderData, InsiderTradesField
+from common.utils import InsiderData
 
 
 @dataclass
@@ -14,17 +15,17 @@ class ParsedTickerData:
 
 
 class ParsedData(Dict[str, ParsedTickerData]):
-    def get_insider_trades_rows(self, column: int = None) -> Iterable[Any]:
+    def get_insider_trades_rows(self, column: int = None) -> Iterable[Union[Any, Tuple[str]]]:
         return (
             x if column is None else x[column]
             for parsed_ticker_data in self.values()
             for x in parsed_ticker_data.insider_data
         )
 
-    def get_insiders_data(self):
+    def get_insiders_data(self) -> Iterable[Tuple[str, int]]:
         return (
             tuple(InsiderData.parse(insider))
-            for insider in self.get_insider_trades_rows(InsiderTradesField.INSIDER)
+            for insider in self.get_insider_trades_rows(InsiderTradeField.INSIDER)
         )
 
 
