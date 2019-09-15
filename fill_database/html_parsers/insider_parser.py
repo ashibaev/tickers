@@ -3,16 +3,18 @@ from typing import Any
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from common.config import CONFIG
 from fill_database.html_parsers.base_parser import BaseTableParser, BaseRowParser, BaseElementParser, BaseTableFinder
 from fill_database.html_parsers.fields import InsiderTradeField
 
 
 class InsiderElementParser(BaseElementParser):
+    def __init__(self, insider_url):
+        self.insider_url = insider_url
+
     def parse_row_element(self, index: int, tag: Tag) -> Any:
         if index == InsiderTradeField.INSIDER:
             tag: Tag = tag.find('a')
-            return tag.attrs.get('href')[len(CONFIG.parser.insider_url):]
+            return tag.attrs.get('href')[len(self.insider_url):]
         value = super().parse_row_element(index, tag)
         if index in [InsiderTradeField.RELATION_TYPE,
                      InsiderTradeField.TRANSACTION_TYPE,
@@ -28,8 +30,8 @@ class InsiderElementParser(BaseElementParser):
 
 
 class InsiderRowParser(BaseRowParser):
-    def __init__(self):
-        super().__init__(InsiderElementParser())
+    def __init__(self, insider_url):
+        super().__init__(InsiderElementParser(insider_url))
 
 
 class InsiderTableFinder(BaseTableFinder):
@@ -38,5 +40,5 @@ class InsiderTableFinder(BaseTableFinder):
 
 
 class InsiderTableParser(BaseTableParser):
-    def __init__(self):
-        super().__init__(InsiderRowParser(), InsiderTableFinder())
+    def __init__(self, insider_url):
+        super().__init__(InsiderRowParser(insider_url), InsiderTableFinder())

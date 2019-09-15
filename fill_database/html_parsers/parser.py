@@ -43,9 +43,9 @@ class ParsedData(Dict[str, ParsedTickerData]):
         )
 
 
-def parse_data(data: Dict[str, TickerData]) -> ParsedData:
+def parse_data(data: Dict[str, TickerData], insider_url: str) -> ParsedData:
     share_parser = ShareTableParser()
-    insider_parser = InsiderTableParser()
+    insider_parser = InsiderTableParser(insider_url)
     return ParsedData(
         (ticker, ParsedTickerData(
             share_parser.parse_table(ticker_data.share_page),

@@ -117,7 +117,7 @@ def main(args):
     logger.info('Data loaded')
 
     logger.info('Parsing data...')
-    parsed_data: ParsedData = parse_data(data)
+    parsed_data: ParsedData = parse_data(data, CONFIG.parser.insider_url)
     logger.info('Data parsed')
 
     logger.info('Filling database...')
