@@ -3,18 +3,28 @@ from typing import Any
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-from fill_database.html_parsers.base_parser import BaseParser
+from fill_database.html_parsers.base_parser import BaseTableParser, BaseRowParser, BaseElementParser, BaseTableFinder
 from fill_database.html_parsers.fields import ShareField
 
 
-class ShareParser(BaseParser):
-    @classmethod
-    def _process_element(cls, index: int, tag: Tag) -> Any:
-        value = super()._process_element(index, tag)
+class ShareElementParser(BaseElementParser):
+    def parse_row_element(self, index: int, tag: Tag) -> Any:
+        value = super().parse_row_element(index, tag)
         if index == ShareField.DATE:
-            return BaseParser.parse_date(value)
-        return BaseParser.parse_numeric(value)
+            return self.parse_date(value)
+        return self.parse_numeric(value)
 
-    @classmethod
-    def _get_table(cls, data: str) -> Tag:
+
+class ShareRowParser(BaseRowParser):
+    def __init__(self):
+        super().__init__(ShareElementParser())
+
+
+class ShareTableFinder(BaseTableFinder):
+    def get_table(self, data: str) -> Tag:
         return BeautifulSoup(data, features="html.parser").find(id='quotes_content_left_pnlAJAX').find('table')
+
+
+class ShareTableParser(BaseTableParser):
+    def __init__(self):
+        super().__init__(ShareRowParser(), ShareTableFinder())

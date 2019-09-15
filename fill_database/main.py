@@ -7,8 +7,7 @@ from fill_database.loaders import load_data, TickerData
 
 from common.models import *
 from common.config import CONFIG
-from common.utils import make_column, get_index_on
-
+from common.utils import make_column, get_index_on, InsiderData
 
 logger = logging.getLogger('fill_db')
 
@@ -41,8 +40,9 @@ def fill_transaction_types(id_cache: IdCache) -> None:
 
 
 def fill_insiders(id_cache: IdCache) -> None:
+    data = (tuple(InsiderData.parse(insider)) for insider in id_cache.parsed_data.get_unique_insiders_info())
     (Insider
-        .insert_many(sorted(set(id_cache.parsed_data.get_insiders_data())), fields=[Insider.name, Insider.nasdaq_id])
+        .insert_many(data, fields=[Insider.name, Insider.nasdaq_id])
         .on_conflict_ignore()
         .execute())
 

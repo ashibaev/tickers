@@ -10,8 +10,7 @@ class Loader:
                       'Yowser/2.5 Safari/537.36'
     }
 
-    @staticmethod
-    def get(*args, **kwargs):
+    def get(self, *args, **kwargs):
         if 'headers' not in kwargs:
             kwargs.update(headers=Loader.HEADERS)
         else:
@@ -20,9 +19,10 @@ class Loader:
 
 
 class BaseLoader:
-    def __init__(self, url: str, ticker: str) -> None:
+    def __init__(self, url: str, ticker: str, loader: Loader) -> None:
         self.url = url
         self.ticker = ticker
+        self.loader = loader
 
     def load(self) -> str:
         raise NotImplemented

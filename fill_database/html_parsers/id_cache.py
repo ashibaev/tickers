@@ -7,12 +7,10 @@ from fill_database.html_parsers.parser import ParsedData
 class IdCache:
     def __init__(self, tickers: List[str], parsed_data: ParsedData):
         self.tickers = self.get_mapping(tickers)
-        self.relation_types = self.get_mapping(parsed_data.get_insider_trades_rows(InsiderTradeField.RELATION_TYPE))
-        self.transaction_types = self.get_mapping(
-            parsed_data.get_insider_trades_rows(InsiderTradeField.TRANSACTION_TYPE)
-        )
-        self.owner_types = self.get_mapping(parsed_data.get_insider_trades_rows(InsiderTradeField.OWNER_TYPE))
-        self.insiders = self.get_mapping(parsed_data.get_insider_trades_rows(InsiderTradeField.INSIDER))
+        self.relation_types = self.get_mapping(parsed_data.get_unique_relation_types())
+        self.transaction_types = self.get_mapping(parsed_data.get_unique_transaction_types())
+        self.owner_types = self.get_mapping(parsed_data.get_unique_owner_types())
+        self.insiders = self.get_mapping(parsed_data.get_unique_insiders_info())
         self.parsed_data = parsed_data
 
     def get_ticker_id(self, ticker) -> int:
@@ -39,5 +37,5 @@ class IdCache:
     def get_mapping(iterable: Iterable[Any]) -> Dict[Any, int]:
         return dict(
             (x[1], x[0])
-            for x in enumerate(sorted(set(iterable)), start=1)
+            for x in enumerate(iterable, start=1)
         )

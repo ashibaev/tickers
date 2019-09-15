@@ -8,7 +8,7 @@ LOGGING_LEVEL = ['INFO', 'DEBUG']['DEBUG' in env]
 
 def parse_tickers(filename: str) -> List[str]:
     with open(filename, 'r') as f:
-        return list(set(line.strip().lower() for line in f.readlines()))
+        return list(sorted(set(line.strip().lower() for line in f.readlines())))
 
 
 CONFIG = Config(

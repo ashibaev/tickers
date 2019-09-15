@@ -1,6 +1,5 @@
 import re
 
-from dataclasses import dataclass
 from enum import Enum
 from typing import List
 
@@ -18,12 +17,12 @@ class InsiderLoader(BaseLoader):
 
     def __init__(self, url: str, ticker: str, page: int) -> None:
         self.page = page
-        super().__init__(url, ticker)
+        super().__init__(url, ticker, Loader())
 
     def load(self) -> str:
         chunks: List[str] = []
         checked = LoadingState.NOT_CHECKED
-        with Loader.get(self._get_page_url(), stream=True) as response:
+        with self.loader.get(self._get_page_url(), stream=True) as response:
             if response.status_code != 200:
                 return ''
             chunk: str
@@ -39,7 +38,7 @@ class InsiderLoader(BaseLoader):
 
     def _check_page(self, chunks: List[str]) -> LoadingState:
         part = ''.join(chunks[-2:])
-        match = InsiderLoader.PATTERN.search(part)
+        match = self.PATTERN.search(part)
         if not match:
             return LoadingState.NOT_CHECKED
         if match.group(1) == self._get_page_url():

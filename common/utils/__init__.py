@@ -1,6 +1,7 @@
 from common.utils.insider_data import InsiderData
 from common.utils.attr_proxy import AttrProxy
 from common.utils.env import env
+from common.utils.apply import apply
 
 
 def make_column(iterable):
