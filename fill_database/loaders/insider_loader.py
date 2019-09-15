@@ -15,9 +15,9 @@ class LoadingState(Enum):
 class InsiderLoader(BaseLoader):
     PATTERN = re.compile(r'rel="canonical" href="((([/a-z]|.)*)(\?page=(?P<page>\d+))?)"')
 
-    def __init__(self, url: str, ticker: str, page: int) -> None:
+    def __init__(self, url: str, ticker: str, loader: Loader, page: int) -> None:
         self.page = page
-        super().__init__(url, ticker, Loader())
+        super().__init__(url, ticker, loader)
 
     def load(self) -> str:
         chunks: List[str] = []

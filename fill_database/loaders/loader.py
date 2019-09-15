@@ -8,8 +8,7 @@ from typing import List, Dict
 
 from common.config.configs import ShareParserConfig, InsiderParserConfig, ParserConfig
 from fill_database.loaders import InsiderLoader, ShareLoader
-from fill_database.loaders.base_loader import BaseLoader
-
+from fill_database.loaders.base_loader import BaseLoader, Loader
 
 logger = logging.getLogger('fill_db')
 
@@ -33,8 +32,8 @@ def get_loaders_for_ticker(ticker: str,
     insider_url = insider_config.url_template.format(ticker=ticker)
     pages = insider_config.pages
     return TickerLoaders(
-        ShareLoader(share_url, ticker),
-        [InsiderLoader(insider_url, ticker, page) for page in range(1, pages + 1)]
+        ShareLoader(share_url, ticker, Loader()),
+        [InsiderLoader(insider_url, ticker, Loader(), page) for page in range(1, pages + 1)]
     )
 
 
